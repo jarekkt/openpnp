@@ -23,6 +23,7 @@ import org.openpnp.machine.reference.ReferenceMachine;
 import org.openpnp.machine.reference.driver.GcodeDriver;
 import org.openpnp.machine.reference.driver.LinuxCNC;
 import org.openpnp.machine.reference.driver.NullDriver;
+import org.openpnp.machine.reference.driver.SmallSmtExtServerDriver;
 import org.openpnp.model.Configuration;
 import org.simpleframework.xml.Element;
 
@@ -75,6 +76,7 @@ public class ReferenceMachineConfigurationWizard extends AbstractConfigurationWi
         comboBoxDriver.addItem(LinuxCNC.class.getCanonicalName());
         comboBoxDriver.addItem(OpenBuildsDriver.class.getCanonicalName());
         comboBoxDriver.addItem(NeoDen4Driver.class.getCanonicalName());
+        comboBoxDriver.addItem(SmallSmtExtServerDriver.class.getCanonicalName());
         
                 JPanel panelLocations = new JPanel();
         panelLocations.setBorder(new TitledBorder(null, "Locations", TitledBorder.LEADING,
