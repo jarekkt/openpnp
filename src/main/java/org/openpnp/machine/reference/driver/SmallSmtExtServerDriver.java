@@ -204,7 +204,7 @@ public class SmallSmtExtServerDriver implements ReferenceDriver , Runnable {
     public void pick(ReferenceNozzle nozzle) throws Exception {
         Logger.debug("pick({})", nozzle);
         checkEnabled();
-        send(String.format(Locale.US, "pick(%s)",nozzle.toString()));
+        send(String.format(Locale.US, "pick(%s)",nozzle.getName()));
 
     }
 
@@ -212,21 +212,21 @@ public class SmallSmtExtServerDriver implements ReferenceDriver , Runnable {
     public void place(ReferenceNozzle nozzle) throws Exception {
         Logger.debug("place({})", nozzle);
         checkEnabled();
-        send(String.format(Locale.US, "place(%s)",nozzle.toString()));
+        send(String.format(Locale.US, "place(%s)",nozzle.getName()));
     }
 
     @Override
     public void actuate(ReferenceActuator actuator, double value) throws Exception {
         Logger.debug("actuateD({}, {})", actuator, value);
         checkEnabled();
-        send(String.format(Locale.US, "actuate(%s,%f)",actuator.toString(),value));
+        send(String.format(Locale.US, "actuate(%s,%f)",actuator.getName(),value));
     }
 
     @Override
     public void actuate(ReferenceActuator actuator, boolean on) throws Exception {
         Logger.debug("actuateB({}, {})", actuator, on);
         checkEnabled();
-        send(String.format(Locale.US, "actuate(%s,%d)",actuator.toString(),on == true ? 1:0));
+        send(String.format(Locale.US, "actuate(%s,%d)",actuator.getName(),on == true ? 1:0));
     }
     
     @Override
@@ -234,7 +234,7 @@ public class SmallSmtExtServerDriver implements ReferenceDriver , Runnable {
     	
         Logger.debug("actuateR({})", actuator);
         checkEnabled();	
-        send(String.format(Locale.US, "actuateRead(%s)",actuator.toString()));
+        send(String.format(Locale.US, "actuateRead(%s)",actuator.getName()));
     	        
 		return Double.toString(lastResponse.value);
     	
@@ -451,7 +451,6 @@ public class SmallSmtExtServerDriver implements ReferenceDriver , Runnable {
     }
     
     private void send(String s) throws Exception {
-        try {
         	boolean sendDone = false;
         	String  response;
 
@@ -463,9 +462,15 @@ public class SmallSmtExtServerDriver implements ReferenceDriver , Runnable {
         		 String message = String.format("<:V%d:%d:%s:>",UDP_PROTOCOL_VERSION,packetId,s);	
         		 
         		 Logger.debug("sending({})",message);
+        		
+        		 try{	
+        			 DatagramPacket packet = new DatagramPacket(message.getBytes(),message.length(),address,UDP_PORT_DRIVER);
+        			 socketExt.send(packet);
         		 
-        		 DatagramPacket packet = new DatagramPacket(message.getBytes(),message.length(),address,UDP_PORT_DRIVER);
-        		 socketExt.send(packet);
+        	 	 }
+             	 catch (Exception e) {
+             		throw new Exception("Driver could not send message to the machine!");
+             	 }
         		 
         		 while(sendDone == false)
         		 {
@@ -473,7 +478,7 @@ public class SmallSmtExtServerDriver implements ReferenceDriver , Runnable {
         			 
         			 if(responseQueue.isEmpty())
         			 {
-        				 throw new Exception("No message response!");
+        				 throw new Exception("No message response from the machine!");
         			 }
         			 
         			 while ((response = responseQueue.poll()) != null) {
@@ -491,12 +496,7 @@ public class SmallSmtExtServerDriver implements ReferenceDriver , Runnable {
         				 }
             		 }
         		 }
-        	 }        	 
-        }
-        catch (Exception e) {
-        	throw new Exception("Driver could not send message to the machine!");
-        }
-             
+        	 }        	              
     }
     
     
